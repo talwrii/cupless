@@ -16,6 +16,7 @@ Once you have installed these you can install this with  [pipx](https://github.c
 
 ```
 pipx install cupless
+```
 
 ## Usage
 `cupless file` will print a file with ipptools. Images will be scaled and printed.
