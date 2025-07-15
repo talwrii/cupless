@@ -7,7 +7,7 @@ Printing on Linux without CUPS.
 [This is a first-cut - but I'm throwing it live because... I'm done with printers for today]. I might add more features when i need to rpint more stuff.
 
 ## Motivation
-I don't like [CUPS](https://openprinting.github.io/cups/). It's this hidden daemon that hides in the background and gets in the way of printing can go wrong and is then difficult to debug. We live in the future with standard file formats (`.pwg`) and standardized printer protocols (ipp) - we should be able to print directly on the command-line immediately and just see the errors right there.
+I don't like [CUPS](https://openprinting.github.io/cups/). It's this hidden daemon that hides in the background and gets in the way of printing can go wrong and is then difficult to debug. We live in the future with standard file formats (`.pwg`) and standardized printer protocols (ipp) - we should be able to print directly on the command-line immediately and just see the errors right there, rather than debugging through a layer of queues with errors and obscure commands.
 
 ## Installation
 This tool depends on [mutool](https://www.mankier.com/1/mutool), [ipptool](https://www.cups.org/doc/man-ipptool.html), and [pdfjam](https://github.com/pdfjam/pdfjam). Importantly, all of these can be installed with apt on ubuntu with `sudo apt install mupdf-tools texlive cups-ipp-utils` (texlive supplies `pdfjam`)
@@ -19,9 +19,8 @@ pipx install cupless
 ```
 
 ## Usage
-`cupless file` will print a file with ipptools. Images will be scaled and printed.
-
-At the moment only single page files are supported.
+`cupless file` will print a file with ipptools. Images will be scaled to fit a page.
+At the moment only single page files are supported - I image i will fix this as soon as I have to print something with multiple pages.
 
 ## Some technical details
 `ipp` is an HTTP-based standard that most printers support that allows files to be sent to the printer and printed. Unfortunately, likely to make printers simpler, standard formats such as PDF or PNG are not supported - rather than either niche (PWF, URF) or proprietary or lossy (JPEG) formats.
