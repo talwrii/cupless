@@ -12,6 +12,8 @@ import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
+from PyPDF2 import PdfReader, PdfWriter
+
 from . import paper
 
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "cupless.ini"
@@ -31,7 +33,7 @@ def main():
             PARSER.error(f"--ipp not specified and default config {DEFAULT_CONFIG_PATH} does not exist")
         config.read(DEFAULT_CONFIG_PATH)
 
-        # Example: suppose the ipp URI is under section 'printer', key 'ipp_uri'
+        # Example: suppose the ipp URI is under section 'printer', key 'uri'
         try:
             args.ipp = config.get("printer", "uri")
         except (configparser.NoSectionError, configparser.NoOptionError):
@@ -49,10 +51,8 @@ def main():
         raise Exception(f'info request failed with status code: {response["status_code"]}')
 
     if 'image/pwg-raster' not in response['attributes']['document-format-supported']:
-        raise Exception('image/pwg-raster not supported by printer supported formats: ({response["attributes"]["document-format-supported"]})')
+        raise Exception(f'image/pwg-raster not supported by printer supported formats: ({response["attributes"]["document-format-supported"]})')
 
-
-    print(response)
 
     default_res = response['attributes'].get('printer-resolution-default')
     if not default_res:
@@ -78,11 +78,68 @@ def main():
     # Convert to PDF if not already PDF
     if ext != 'pdf':
         paper_size = paper.get_paper_size()
-        file_bytes = convert_to_pdf(paper_size, ext, file_bytes)
+        pdf_bytes = convert_to_pdf(paper_size, ext, file_bytes)
+
+    if is_landscape(pdf_bytes):
+        pdf_bytes = rotate_pdf(pdf_bytes)
 
     # Convert PDF to PWG raster (final format for sending)
-    pwg_bytes = convert_to_pwg(paper_size, file_bytes)
+    pwg_bytes = convert_to_pwg(paper_size, pdf_bytes)
     print_with_ipptool(args.ipp, pwg_bytes)
+
+def is_landscape(pdf_bytes: bytes) -> bool:
+    """
+    Check if the first page of the PDF (from bytes) is landscape.
+    """
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    page = reader.pages[0]
+    rotation = page.get("/Rotate") or 0
+    width = float(page.mediabox.width)
+    height = float(page.mediabox.height)
+    if rotation in [90, 270]:
+        width, height = height, width
+    return width > height
+
+
+def rotate_pdf(input_pdf_bytes: bytes) -> bytes:
+    """
+    Rotate all pages of a PDF by 90 degrees using pdfjam.
+    Accepts PDF bytes as input, returns rotated PDF bytes.
+    """
+
+    input_path = None
+    output_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as input_file:
+            input_file.write(input_pdf_bytes)
+            input_path = input_file.name
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as output_file:
+            output_path = output_file.name
+
+        cmd = [
+            "pdfjam",
+            "--outfile", output_path,
+            "--rotate", "90",
+            input_path,
+        ]
+
+        result = subprocess.run(cmd, capture_output=True)
+        if result.returncode != 0:
+            raise RuntimeError(f"pdfjam failed: {result.stderr.decode()}")
+
+        with open(output_path, "rb") as f:
+            rotated_pdf_bytes = f.read()
+
+        return rotated_pdf_bytes
+
+    finally:
+        if input_path and os.path.exists(input_path):
+            os.unlink(input_path)
+        if output_path and os.path.exists(output_path):
+            os.unlink(output_path)
+
+
 
 def print_with_ipptool(printer_uri, pwg_bytes):
     # Write the PWG raster bytes to a temporary file
@@ -90,7 +147,7 @@ def print_with_ipptool(printer_uri, pwg_bytes):
         pwg_file.write(pwg_bytes)
         pwg_file.flush()
 
-        # Write the test file that will use variables
+        # Prepare the ipptool test file content
         ipp_test_content = """
 {
   NAME "Print file using Print-Job"
