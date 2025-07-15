@@ -4,11 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cupless"
-version = "1.0.0"
+version = "1.0.1"
 description = "A Linux command-line wrapper to print from the command-line without cups"
 dependencies = []
 readme = "README.md"
-
 [[project.authors]]
 name = "@readwithai"
 email = "talwrii@github.com"
