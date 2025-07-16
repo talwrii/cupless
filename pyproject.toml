@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cupless"
-version = "1.1.0"
+version = "1.2.0"
 description = "A Linux command-line wrapper to print from the command-line without cups"
-dependencies = ["PyPDF2"]
+dependencies = [ "PyPDF2",]
 readme = "README.md"
 [[project.authors]]
 name = "@readwithai"
