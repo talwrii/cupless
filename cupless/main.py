@@ -79,6 +79,8 @@ def main():
     if ext != 'pdf':
         paper_size = paper.get_paper_size()
         pdf_bytes = convert_to_pdf(paper_size, ext, file_bytes)
+    else:
+        pdf_bytes = file_bytes
 
     if is_landscape(pdf_bytes):
         pdf_bytes = rotate_pdf(pdf_bytes)
@@ -120,7 +122,7 @@ def rotate_pdf(input_pdf_bytes: bytes) -> bytes:
         cmd = [
             "pdfjam",
             "--outfile", output_path,
-            "--rotate", "90",
+            "--angle", "90",
             input_path,
         ]
 
