@@ -4,8 +4,6 @@
 
 Printing on Linux without CUPS.
 
-[This is a first-cut - but I'm throwing it live because... I'm done with printers for today]. I might add more features when i need to rpint more stuff.
-
 ![logo](logo-small.png)
 
 ## Motivation
