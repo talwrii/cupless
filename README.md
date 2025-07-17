@@ -6,6 +6,8 @@ Printing on Linux without CUPS.
 
 [This is a first-cut - but I'm throwing it live because... I'm done with printers for today]. I might add more features when i need to rpint more stuff.
 
+![logo](logo.png)
+
 ## Motivation
 I don't like [CUPS](https://openprinting.github.io/cups/). It's this hidden daemon that hides in the background and gets in the way of printing can go wrong and is then difficult to debug. We live in the future with standard file formats (`.pwg`) and standardized printer protocols (ipp) - we should be able to print directly on the command-line immediately and just see the errors right there, rather than debugging through a layer of queues with errors and obscure commands.
 
