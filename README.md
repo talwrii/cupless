@@ -7,7 +7,9 @@ Printing on Linux without CUPS.
 ![logo](logo-small.png)
 
 ## Motivation
-I don't like [CUPS](https://openprinting.github.io/cups/). It's this hidden daemon that hides in the background and gets in the way of printing can go wrong and is then difficult to debug. We live in the future with standard file formats (`.pwg`) and standardized printer protocols (ipp) - we should be able to print directly on the command-line immediately and just see the errors right there, rather than debugging through a layer of queues with errors and obscure commands.
+I don't like [CUPS](https://openprinting.github.io/cups/). It's this hidden daemon, that uns in the background, gets in the way of printing and can go wrong and is then difficult to debug. We live in the future with standard file formats ([PWG](https://openprinting.github.io/driverless/01-standards-and-their-pdls/#pwg-raster-format)) and standardized printer protocols ([IPP](https://en.wikipedia.org/wiki/Internet_Printing_Protocol)): we should be able to print directly on the command-line without talking to a daemon  see the errors right there, rather than debugging through a layers of queues with obscure commands of web interfaces. And yet, I couldn't find the tools to do this, so I hacked up my own. 
+
+Also, I would quite like to be able to "just print" images nad have them be scaled etc, without having to do the scaling myself.
 
 ## Installation
 This tool depends on [mutool](https://www.mankier.com/1/mutool), [ipptool](https://www.cups.org/doc/man-ipptool.html), and [pdfjam](https://github.com/pdfjam/pdfjam). Importantly, all of these can be installed with apt on ubuntu with `sudo apt install mupdf-tools texlive cups-ipp-utils` (texlive supplies `pdfjam`)
@@ -19,7 +21,20 @@ pipx install cupless
 ```
 
 ## Usage
-`cupless file` will print a file with ipptools. Images will be scaled to fit a page.
+`cupless --ipp $ULRL file` will print a file to a printer using IPP. To discover the IPP URI for your printer (which looks something like ipp://printer/ipp/print you can use a tool like `ippfind` which queries printers on the local network or review your printers documentation). Your printer will probably have an [mdns / bounjour / avahi](https://en.wikipedia.org/wiki/Multicast_DNS) domain name ending in `.local` which works on linux with no configuration.
+
+Once you have found your printers URI you can put this in `~/.config/cupless.ini` like so:
+
+```
+[printer]
+uri=ipp://printer/ipp/print
+```
+
+
+
+
+
+Images will be scaled to fit a page.
 At the moment only single page files are supported - I image i will fix this as soon as I have to print something with multiple pages.
 
 ## Some technical details
@@ -34,6 +49,10 @@ Obviously there has been a bunch of work on standardizing printers. This tool ma
 I didn't want to depend upon `ipptools` as this is maintained by cups (though it is a separate package). However, I had difficulty getting the print command to work so gave up and used iptools. If I feel inspired (of if you do and feel like submitting patches) I might remove this. `pdfjam` depends on latex and texlive - which is quite big - however it is quite good at resizing images.
 
 This only works with printers that have a default resolution of 300dpi.
+
+This only supports internet printers connected to your network which support IPP - so we **do not support usb printers**.
+
+This tool does not support printer discoverty.
 
 ## About me
 I am **@readwithai**. I create tools for reading, research and agency sometimes using the markdown editor [Obsidian](https://readwithai.substack.com/p/what-exactly-is-obsidian).
