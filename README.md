@@ -30,12 +30,10 @@ Once you have found your printers URI you can put this in `~/.config/cupless.ini
 uri=ipp://printer/ipp/print
 ```
 
+You can then print with `cupless file`.
 
 
-
-
-Images will be scaled to fit a page.
-At the moment only single page files are supported - I image i will fix this as soon as I have to print something with multiple pages.
+Images will be scaled to fit the page. At the moment, only single page files are supported - I imagine i will fix this as soon as I have to print something with multiple pages.
 
 ## Some technical details
 `ipp` is an HTTP-based standard that most printers support that allows files to be sent to the printer and printed. Unfortunately, likely to make printers simpler, standard formats such as PDF or PNG are not supported - rather than either niche (PWF, URF) or proprietary or lossy (JPEG) formats.
@@ -52,7 +50,9 @@ This only works with printers that have a default resolution of 300dpi.
 
 This only supports internet printers connected to your network which support IPP - so we **do not support usb printers**.
 
-This tool does not support printer discoverty.
+This tool does not support printer discoverty - instead you can use `ippfind` directly.
+
+At the moment this tool only suppors printing single page documents.
 
 ## About me
 I am **@readwithai**. I create tools for reading, research and agency sometimes using the markdown editor [Obsidian](https://readwithai.substack.com/p/what-exactly-is-obsidian).
